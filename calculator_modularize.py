@@ -10,7 +10,6 @@ def readNumber(line, index):
         while index < len(line) and line[index].isdigit():
             number += int(line[index]) * keta
             keta /= 10
-            # pointerをひとつ進めて返す
             index += 1
     token = {'type': 'NUMBER', 'number': number}
     return token, index
@@ -87,7 +86,7 @@ def firstEvaluate(tokens):
             index += 1
     return md_tokens
 
-#addition, subtraction
+# addition, subtraction
 def secondEvaluate(tokens):
     answer = 0
     tokens.insert(0, {'type': 'PLUS'}) # Insert a dummy '+' token
