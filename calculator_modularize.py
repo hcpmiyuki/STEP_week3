@@ -10,6 +10,7 @@ def readNumber(line, index):
         while index < len(line) and line[index].isdigit():
             number += int(line[index]) * keta
             keta /= 10
+            # pointerをひとつ進めて返す
             index += 1
     token = {'type': 'NUMBER', 'number': number}
     return token, index
@@ -35,20 +36,26 @@ def readDiv(line, index):
     return token, index + 1
 
 
-def multiplication(tokens, md_tokens, index):
-    term = md_tokens[-1]['number']*tokens[index+1]['number']
-    md_token = {'type': 'NUMBER', 'number': term}
-    # Replace the last added token to a new one
-    md_tokens[-1] = md_token
-    return md_tokens, index + 2
+def readRBracket(line, index):
+    token = {'type': 'R_BRACKET'}
+    return token, index + 1
 
 
-def division(tokens, md_tokens, index):
-    term = md_tokens[-1]['number']/tokens[index+1]['number']
-    md_token = {'type': 'NUMBER', 'number': term}
-    # Replace the last added token to a new one
-    md_tokens[-1] = md_token
-    return md_tokens, index + 2
+def readLBracket(line, index):
+    token = {'type': 'L_BRACKET'}
+    return token, index + 1
+
+
+def multiplication(tokens, tmp, index):
+    term = tmp['number']*tokens[index+1]['number']
+    tmp = {'type': 'NUMBER', 'number': term}
+    return tmp, index + 2
+
+
+def division(tokens, tmp, index):
+    term = tmp['number']/tokens[index+1]['number']
+    tmp = {'type': 'NUMBER', 'number': term}
+    return tmp, index + 2
 
 
 def tokenize(line):
@@ -67,25 +74,28 @@ def tokenize(line):
     return tokens
 
 
-
 # multiplication, division
 def firstEvaluate(tokens):
+    tmp = {'type': 'PLUS'}
     md_tokens = []
     index = 0
     while index < len(tokens):
         if tokens[index]['type'] == 'MULTI':
-            (md_tokens, index) = multiplication(tokens, md_tokens, index)
+            (tmp, index) = multiplication(tokens, tmp, index)
         elif tokens[index]['type'] == 'DIV':
-            (md_tokens, index) = division(tokens, md_tokens, index)
+            (tmp, index) = division(tokens, tmp, index)
         else:
-            md_tokens.append(tokens[index])
+            md_tokens.append(tmp) # ひとつ前に保存したtoken
+            tmp = tokens[index] # 現在のtokenに更新
             index += 1
+    # 最後にtmpに保存したtokenを追加
+    md_tokens.append(tmp)
     return md_tokens
 
 # addition, subtraction
 def secondEvaluate(tokens):
     answer = 0
-    tokens.insert(0, {'type': 'PLUS'}) # Insert a dummy '+' token
+#     tokens.insert(0, {'type': 'PLUS'}) # Insert a dummy '+' token
     index = 1
     while index < len(tokens):
         if tokens[index]['type'] == 'NUMBER':
