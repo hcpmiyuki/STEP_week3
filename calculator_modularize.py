@@ -10,7 +10,6 @@ def readNumber(line, index):
         while index < len(line) and line[index].isdigit():
             number += int(line[index]) * keta
             keta /= 10
-            # pointerをひとつ進めて返す
             index += 1
     token = {'type': 'NUMBER', 'number': number}
     return token, index
@@ -36,14 +35,14 @@ def readDiv(line, index):
     return token, index + 1
 
 
-# def readRBracket(line, index):
-#    token = {'type': 'R_BRACKET'}
-#    return token, index + 1
+def readRBracket(line, index):
+    token = {'type': 'R_BRACKET'}
+    return token, index + 1
 
 
-# def readLBracket(line, index):
-#    token = {'type': 'L_BRACKET'}
-#    return token, index + 1
+def readLBracket(line, index):
+    token = {'type': 'L_BRACKET'}
+    return token, index + 1
 
 
 def multiplication(tokens, tmp, index):
@@ -67,6 +66,8 @@ def tokenize(line):
         elif line[index] == '-': (token, index) = readMinus(line, index)
         elif line[index] == '*': (token, index) = readMulti(line, index)
         elif line[index] == '/': (token, index) = readDiv(line, index)
+        elif line[index] == ')': (token, index) = readRBracket(line, index)
+        elif line[index] == '(': (token, index) = readLBracket(line, index)
         else:
             print('Invalid character found: ' + line[index])
             exit(1)
@@ -75,7 +76,7 @@ def tokenize(line):
 
 
 # multiplication, division
-def MDEvaluate(tokens):
+def evaluateMD(tokens):
     tmp = {'type': 'PLUS'}
     md_tokens = []
     index = 0
@@ -88,12 +89,12 @@ def MDEvaluate(tokens):
             md_tokens.append(tmp) # ひとつ前に保存したtoken
             tmp = tokens[index] # 現在のtokenに更新
             index += 1
-    # 最後にtmpに保存したtokenを追加
     md_tokens.append(tmp)
     return md_tokens
 
+
 # addition, subtraction
-def ASEvaluate(tokens):
+def evaluateAS(tokens):
     answer = 0
     index = 1
     while index < len(tokens):
@@ -108,11 +109,35 @@ def ASEvaluate(tokens):
         index += 1
     return answer
 
+# calculate in bracket preferentially
+def prioritizeBracket(tokens):
+    b_index = len(tokens) - 1
+    f_index = 0
+    #  search 'L_BRACKET' from the end of the list
+    while b_index >= 0:
+        if tokens[b_index]['type'] == 'L_BRACKET':
+            f_index = b_index
+             #  search 'R_BRACKET' from the index where 'L_BRACKET' was found
+            while f_index < len(tokens):
+                if tokens[f_index]['type'] == 'R_BRACKET':
+                    # calculate in bracket 
+                    md_tokens_in_bracket = evaluateMD(tokens[b_index+1:f_index])
+                    answer_in_bracket = evaluateAS(md_tokens_in_bracket)
+                    tokens[b_index] = {'type': 'NUMBER', 'number': answer_in_bracket}
+                    # delete tokens[b_index+1:f_index+1]
+                    for i in range(b_index+1, f_index+1):
+                        tokens.pop(b_index+1)
+                    break
+                f_index += 1
+        b_index -= 1
+    return tokens
+
 
 def test(line):
     tokens = tokenize(line)
-    md_tokens = MDEvaluate(tokens)
-    actualAnswer = ASEvaluate(md_tokens)
+    evaluated_tokens_in_bracket = prioritizeBracket(tokens)
+    md_tokens = evaluateMD(evaluated_tokens_in_bracket)
+    actualAnswer = evaluateAS(md_tokens)
     expectedAnswer = eval(line)
     if abs(actualAnswer - expectedAnswer) < 1e-8:
         print("PASS! (%s = %f)" % (line, expectedAnswer))
@@ -192,6 +217,16 @@ def runTest():
     test("5.009*2.5/6.33-10.44+1.33")
     test("6003.4/2.3*33.3+10.33+1.3")
     
+    test("(3.0+4.3-5.3)*30.3")
+    test("(3.3-4.333)+35.3*333.3")
+    test("4.6+(5.33-5.44)/332.4")
+    test("(44.4-5.2+5.22)/222.4")
+    test("(4.33-(5.2222+5444.3*233.55))+2.44/44.20")
+    test("43.4+(5.44-5.44*2.333-3333.4)/3.20")
+    test("5*27-(43.4/2.3+(2.344+555.5))")
+    test("5.009*(2.5/6.33-(10.44+1.33))")
+    test("6003.4/(2.3*(33.3+10.33)+1.3)")
+    
     
     print("==== Test finished! ====\n")
 
@@ -201,6 +236,7 @@ while True:
     print('> ', end="")
     line = input()
     tokens = tokenize(line)
-    md_tokens = MDEvaluate(tokens)
-    answer = ASEvaluate(md_tokens)
+    evaluated_tokens_in_bracket = prioritizeBracket(tokens)
+    md_tokens = evaluateMD(evaluated_tokens_in_bracket)
+    answer = evaluateAS(md_tokens)
     print("answer = %f\n" % answer)
