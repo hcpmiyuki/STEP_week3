@@ -36,14 +36,14 @@ def readDiv(line, index):
     return token, index + 1
 
 
-def readRBracket(line, index):
-    token = {'type': 'R_BRACKET'}
-    return token, index + 1
+# def readRBracket(line, index):
+#    token = {'type': 'R_BRACKET'}
+#    return token, index + 1
 
 
-def readLBracket(line, index):
-    token = {'type': 'L_BRACKET'}
-    return token, index + 1
+# def readLBracket(line, index):
+#    token = {'type': 'L_BRACKET'}
+#    return token, index + 1
 
 
 def multiplication(tokens, tmp, index):
@@ -95,7 +95,6 @@ def firstEvaluate(tokens):
 # addition, subtraction
 def secondEvaluate(tokens):
     answer = 0
-#     tokens.insert(0, {'type': 'PLUS'}) # Insert a dummy '+' token
     index = 1
     while index < len(tokens):
         if tokens[index]['type'] == 'NUMBER':
