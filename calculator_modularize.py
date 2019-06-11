@@ -55,21 +55,17 @@ def tokenize(line):
     tokens = []
     index = 0
     while index < len(line):
-        if line[index].isdigit():
-            (token, index) = readNumber(line, index)
-        elif line[index] == '+':
-            (token, index) = readPlus(line, index)
-        elif line[index] == '-':
-            (token, index) = readMinus(line, index)
-        elif line[index] == '*':
-            (token, index) = readMulti(line, index)
-        elif line[index] == '/':
-            (token, index) = readDiv(line, index)
+        if line[index].isdigit(): (token, index) = readNumber(line, index)
+        elif line[index] == '+': (token, index) = readPlus(line, index)
+        elif line[index] == '-': (token, index) = readMinus(line, index)
+        elif line[index] == '*': (token, index) = readMulti(line, index)
+        elif line[index] == '/': (token, index) = readDiv(line, index)
         else:
             print('Invalid character found: ' + line[index])
             exit(1)
         tokens.append(token)
     return tokens
+
 
 
 # multiplication, division
