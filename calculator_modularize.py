@@ -75,7 +75,7 @@ def tokenize(line):
 
 
 # multiplication, division
-def firstEvaluate(tokens):
+def MDEvaluate(tokens):
     tmp = {'type': 'PLUS'}
     md_tokens = []
     index = 0
@@ -93,7 +93,7 @@ def firstEvaluate(tokens):
     return md_tokens
 
 # addition, subtraction
-def secondEvaluate(tokens):
+def ASEvaluate(tokens):
     answer = 0
     index = 1
     while index < len(tokens):
@@ -111,8 +111,8 @@ def secondEvaluate(tokens):
 
 def test(line):
     tokens = tokenize(line)
-    md_tokens = firstEvaluate(tokens)
-    actualAnswer = secondEvaluate(md_tokens)
+    md_tokens = MDEvaluate(tokens)
+    actualAnswer = ASEvaluate(md_tokens)
     expectedAnswer = eval(line)
     if abs(actualAnswer - expectedAnswer) < 1e-8:
         print("PASS! (%s = %f)" % (line, expectedAnswer))
@@ -201,6 +201,6 @@ while True:
     print('> ', end="")
     line = input()
     tokens = tokenize(line)
-    md_tokens = firstEvaluate(tokens)
-    answer = secondEvaluate(md_tokens)
+    md_tokens = MDEvaluate(tokens)
+    answer = ASEvaluate(md_tokens)
     print("answer = %f\n" % answer)
