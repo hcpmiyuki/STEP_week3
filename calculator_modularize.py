@@ -35,13 +35,13 @@ def readDiv(line, index):
     return token, index + 1
 
 
-def readRBracket(line, index):
-    token = {'type': 'R_BRACKET'}
+def readRParentheses(line, index):
+    token = {'type': 'R_PARENTHESES'}
     return token, index + 1
 
 
-def readLBracket(line, index):
-    token = {'type': 'L_BRACKET'}
+def readLParentheses(line, index):
+    token = {'type': 'L_PARENTHESES'}
     return token, index + 1
 
 
@@ -66,8 +66,8 @@ def tokenize(line):
         elif line[index] == '-': (token, index) = readMinus(line, index)
         elif line[index] == '*': (token, index) = readMulti(line, index)
         elif line[index] == '/': (token, index) = readDiv(line, index)
-        elif line[index] == ')': (token, index) = readRBracket(line, index)
-        elif line[index] == '(': (token, index) = readLBracket(line, index)
+        elif line[index] == ')': (token, index) = readRParentheses(line, index)
+        elif line[index] == '(': (token, index) = readLParentheses(line, index)
         else:
             print('Invalid character found: ' + line[index])
             exit(1)
@@ -116,20 +116,20 @@ def evaluateAll(tokens):
     return answer
 
 
-# calculate in bracket preferentially
-def prioritizeBracket(tokens):
+# calculate in parentheses preferentially
+def prioritizeParentheses(tokens):
     b_index = len(tokens) - 1
     f_index = 0
-    #  search 'L_BRACKET' from the end of the list
+    #  search 'L_PARENTHESES' from the end of the list
     while b_index >= 0:
-        if tokens[b_index]['type'] == 'L_BRACKET':
+        if tokens[b_index]['type'] == 'L_PARENTHESES':
             f_index = b_index
-             #  search 'R_BRACKET' from the index where 'L_BRACKET' was found
+             #  search 'R_PARENTHESES' from the index where 'L_PARENTHESES' was found
             while f_index < len(tokens):
-                if tokens[f_index]['type'] == 'R_BRACKET':
-                    # calculate in bracket 
-                    answer_in_bracket = evaluateAll(tokens[b_index+1:f_index])
-                    tokens[b_index] = {'type': 'NUMBER', 'number': answer_in_bracket}
+                if tokens[f_index]['type'] == 'R_PARENTHESES':
+                    # calculate in parentheses 
+                    answer_in_parentheses = evaluateAll(tokens[b_index+1:f_index])
+                    tokens[b_index] = {'type': 'NUMBER', 'number': answer_in_parentheses}
                     # delete tokens[b_index+1:f_index+1]
                     for i in range(b_index+1, f_index+1):
                         tokens.pop(b_index+1)
@@ -141,7 +141,7 @@ def prioritizeBracket(tokens):
 
 def test(line):
     tokens = tokenize(line)
-    preferentially_evaluated_token = prioritizeBracket(tokens)
+    preferentially_evaluated_token = prioritizeParentheses(tokens)
     actualAnswer = evaluateAll(preferentially_evaluated_token)
     expectedAnswer = eval(line)
     if abs(actualAnswer - expectedAnswer) < 1e-8:
@@ -241,6 +241,6 @@ while True:
     print('> ', end="")
     line = input()
     tokens = tokenize(line)
-    preferentially_evaluated_token = prioritizeBracket(tokens)
+    preferentially_evaluated_token = prioritizeParentheses(tokens)
     answer = evaluateAll(preferentially_evaluated_token)
     print("answer = %f\n" % answer)
