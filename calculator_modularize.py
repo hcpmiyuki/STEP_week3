@@ -109,6 +109,13 @@ def evaluateAS(tokens):
         index += 1
     return answer
 
+
+def evaluateAll(tokens):
+    md_tokens = evaluateMD(tokens)
+    answer = evaluateAS(md_tokens)
+    return answer
+
+
 # calculate in bracket preferentially
 def prioritizeBracket(tokens):
     b_index = len(tokens) - 1
@@ -121,8 +128,7 @@ def prioritizeBracket(tokens):
             while f_index < len(tokens):
                 if tokens[f_index]['type'] == 'R_BRACKET':
                     # calculate in bracket 
-                    md_tokens_in_bracket = evaluateMD(tokens[b_index+1:f_index])
-                    answer_in_bracket = evaluateAS(md_tokens_in_bracket)
+                    answer_in_bracket = evaluateAll(tokens[b_index+1:f_index])
                     tokens[b_index] = {'type': 'NUMBER', 'number': answer_in_bracket}
                     # delete tokens[b_index+1:f_index+1]
                     for i in range(b_index+1, f_index+1):
@@ -135,9 +141,8 @@ def prioritizeBracket(tokens):
 
 def test(line):
     tokens = tokenize(line)
-    evaluated_tokens_in_bracket = prioritizeBracket(tokens)
-    md_tokens = evaluateMD(evaluated_tokens_in_bracket)
-    actualAnswer = evaluateAS(md_tokens)
+    preferentially_evaluated_token = prioritizeBracket(tokens)
+    actualAnswer = evaluateAll(preferentially_evaluated_token)
     expectedAnswer = eval(line)
     if abs(actualAnswer - expectedAnswer) < 1e-8:
         print("PASS! (%s = %f)" % (line, expectedAnswer))
@@ -236,7 +241,6 @@ while True:
     print('> ', end="")
     line = input()
     tokens = tokenize(line)
-    evaluated_tokens_in_bracket = prioritizeBracket(tokens)
-    md_tokens = evaluateMD(evaluated_tokens_in_bracket)
-    answer = evaluateAS(md_tokens)
+    preferentially_evaluated_token = prioritizeBracket(tokens)
+    answer = evaluateAll(preferentially_evaluated_token)
     print("answer = %f\n" % answer)
